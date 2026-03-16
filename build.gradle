@@ -2,7 +2,6 @@
  * It is advised that you do not edit anything in the build.gradle; unless you are sure of what you are doing
  */
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
-import org.jetbrains.changelog.Changelog
 import org.jetbrains.gradle.ext.Gradle
 
 plugins {
@@ -110,6 +109,7 @@ repositories {
 }
 
 dependencies {
+    compileOnlyApi 'org.jetbrains:annotations:24.1.0'
     if (propertyBool('use_modern_java_syntax')) {
         annotationProcessor 'com.github.bsideup.jabel:jabel-javac-plugin:1.0.0'
         // Workaround for https://github.com/bsideup/jabel/issues/174
@@ -269,19 +269,6 @@ test {
             showStandardStreams = true
         }
     }
-}
-
-String parserChangelog() {
-    if (!file('CHANGELOG.md').exists()) {
-        throw new GradleException('publish_with_changelog is true, but CHANGELOG.md does not exist in the workspace!')
-    }
-    String parsedChangelog = changelog.renderItem(
-            changelog.get(propertyString('mod_version')).withHeader(false).withEmptySections(false),
-            Changelog.OutputType.MARKDOWN)
-    if (parsedChangelog.isEmpty()) {
-        throw new GradleException('publish_with_changelog is true, but the changelog for the latest version is empty!')
-    }
-    return parsedChangelog
 }
 
 tasks.register('generateMixinJson') {
