@@ -18,9 +18,6 @@
 
 package aekeylegacy.client;
 
-import java.text.DecimalFormat;
-import java.math.RoundingMode;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -38,13 +35,6 @@ import aekeylegacy.api.stacks.AmountFormat;
 
 @SideOnly(Side.CLIENT)
 public class AEKeyRenderer {
-    private static final DecimalFormat TRUNCATED_FORMAT = new DecimalFormat("#.##");
-
-    static {
-        TRUNCATED_FORMAT.setRoundingMode(RoundingMode.DOWN);
-        TRUNCATED_FORMAT.setDecimalSeparatorAlwaysShown(false);
-    }
-
     private AEKeyRenderer() {
     }
 
