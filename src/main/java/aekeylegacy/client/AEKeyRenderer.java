@@ -34,7 +34,7 @@ import aekeylegacy.api.stacks.AEKeyType;
 import aekeylegacy.api.stacks.AmountFormat;
 
 @SideOnly(Side.CLIENT)
-public class AEKeyRenderer {
+public final class AEKeyRenderer {
     private AEKeyRenderer() {
     }
 
@@ -74,7 +74,7 @@ public class AEKeyRenderer {
 
     private static void renderAmountText(AEKeyType keyType, long amount, int x, int y, AmountFormat format) {
         var fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        String text = keyType.formatAmount(amount, format);
+        var text = keyType.formatAmount(amount, format);
         renderText(fontRenderer, text, x, y, false);
     }
 

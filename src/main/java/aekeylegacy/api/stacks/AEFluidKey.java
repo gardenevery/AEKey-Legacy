@@ -66,7 +66,7 @@ public final class AEFluidKey extends AEKey {
     }
 
     public static boolean fluidStackIsEmpty(FluidStack stack) {
-        return stack.getFluid() == null || stack.amount <= 0;
+        return stack == null || stack.amount <= 0;
     }
 
     @Override
