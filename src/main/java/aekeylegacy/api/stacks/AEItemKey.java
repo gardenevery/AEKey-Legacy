@@ -19,12 +19,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.oredict.OreDictionary;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import aekeylegacy.AELog;
-import aekeylegacy.OreDictUtil;
 import aekeylegacy.api.storage.AEKeyFilter;
 
 public final class AEItemKey extends AEKey {
@@ -311,7 +311,20 @@ public final class AEItemKey extends AEKey {
 
     @Override
     public boolean isTagged(String tag) {
-        return OreDictUtil.hasTag(item, metadata, tag);
+        if (!OreDictionary.doesOreNameExist(tag)) {
+            return false;
+        }
+
+        int tagId = OreDictionary.getOreID(tag);
+        var stack = new ItemStack(item, 1, metadata);
+        int[] oreIds = OreDictionary.getOreIDs(stack);
+
+        for (int id : oreIds) {
+            if (id == tagId) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

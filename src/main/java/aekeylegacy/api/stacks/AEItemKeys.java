@@ -24,8 +24,7 @@ import java.util.stream.Stream;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
-
-import aekeylegacy.OreDictUtil;
+import net.minecraftforge.oredict.OreDictionary;
 
 final class AEItemKeys extends AEKeyType {
     private static final ResourceLocation ID = new ResourceLocation("ae2", "i");
@@ -55,6 +54,6 @@ final class AEItemKeys extends AEKeyType {
 
     @Override
     public Stream<String> getTagNames() {
-        return OreDictUtil.getOreNames();
+        return Stream.of(OreDictionary.getOreNames());
     }
 }
