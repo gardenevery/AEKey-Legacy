@@ -38,7 +38,7 @@ public class AEKeyLegacy {
         @SideOnly(Side.CLIENT)
         @SubscribeEvent
         public static void registerModels(ModelRegistryEvent event) {
-            var item = aekeylegacy.items.WrappedGenericStack.getItem();
+            var item = WrappedGenericStack.getItem();
             ModelLoader.setCustomModelResourceLocation(item, 0,
                     new ModelResourceLocation(Objects.requireNonNull(item.getRegistryName()), "inventory"));
         }

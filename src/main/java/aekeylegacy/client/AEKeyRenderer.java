@@ -38,65 +38,67 @@ public final class AEKeyRenderer {
     private AEKeyRenderer() {
     }
 
+    public static void render(AEKey what, long amount, boolean craftable, int x, int y, AmountFormat format) {
+        if (what == null) {
+            return;
+        }
+
+        boolean hasAmount = amount > 0;
+
+        if (what instanceof AEItemKey itemKey) {
+            drawItemIcon(itemKey.getReadOnlyStack(), x, y);
+            if (hasAmount) {
+                renderAmountText(AEKeyType.items(), amount, x, y, format);
+            }
+
+            if (craftable) {
+                renderCraftableIndicator(hasAmount, x, y);
+            }
+        } else if (what instanceof AEFluidKey fluidKey) {
+            drawFluidIcon(fluidKey, x, y);
+            if (hasAmount) {
+                renderAmountText(AEKeyType.fluids(), amount, x, y, format);
+            }
+
+            if (craftable) {
+                renderCraftableIndicator(hasAmount, x, y);
+            }
+        }
+    }
+
     public static void render(AEKey what, long amount, int x, int y, AmountFormat format) {
         if (what == null) {
             return;
         }
 
         if (what instanceof AEItemKey itemKey) {
-            render(itemKey, amount, x, y, format);
+            drawItemIcon(itemKey.getReadOnlyStack(), x, y);
+            if (amount > 0) {
+                renderAmountText(AEKeyType.items(), amount, x, y, format);
+            }
         } else if (what instanceof AEFluidKey fluidKey) {
-            render(fluidKey, amount, x, y, format);
+            drawFluidIcon(fluidKey, x, y);
+            if (amount > 0) {
+                renderAmountText(AEKeyType.fluids(), amount, x, y, format);
+            }
         }
     }
 
-    public static void render(AEKey what, long amount, boolean craftable, int x, int y, AmountFormat format) {
+    public static void render(AEKey what, boolean craftable, int x, int y, AmountFormat format) {
         if (what == null) {
             return;
         }
 
         if (what instanceof AEItemKey itemKey) {
-            render(itemKey, amount, craftable, x, y, format);
+            drawItemIcon(itemKey.getReadOnlyStack(), x, y);
+            if (craftable) {
+                renderCraftableIndicator(false, x, y);
+            }
         } else if (what instanceof AEFluidKey fluidKey) {
-            render(fluidKey, amount, craftable, x, y, format);
-        }
-    }
-
-    public static void render(AEItemKey key, long amount, int x, int y, AmountFormat format) {
-        if (key != null) {
-            drawItem(key.getReadOnlyStack(), x, y);
-            if (amount > 0) {
-                renderAmountText(AEKeyType.items(), amount, x, y, format);
+            drawFluidIcon(fluidKey, x, y);
+            if (craftable) {
+                renderCraftableIndicator(false, x, y);
             }
-        }
-    }
-
-    public static void render(AEItemKey key, long amount, boolean craftable, int x, int y, AmountFormat format) {
-        if (key != null) {
-            drawItem(key.getReadOnlyStack(), x, y);
-            if (amount > 0) {
-                renderAmountText(AEKeyType.items(), amount, x, y, format);
-            }
-            renderCraftableIndicator(craftable, amount, x, y);
-        }
-    }
-
-    public static void render(AEFluidKey key, long amount, int x, int y, AmountFormat format) {
-        if (key != null) {
-            drawFluid(key, x, y);
-            if (amount > 0) {
-                renderAmountText(AEKeyType.fluids(), amount, x, y, format);
-            }
-        }
-    }
-
-    public static void render(AEFluidKey key, long amount, boolean craftable, int x, int y, AmountFormat format) {
-        if (key != null) {
-            drawFluid(key, x, y);
-            if (amount > 0) {
-                renderAmountText(AEKeyType.fluids(), amount, x, y, format);
-            }
-            renderCraftableIndicator(craftable, amount, x, y);
         }
     }
 
@@ -106,21 +108,20 @@ public final class AEKeyRenderer {
         }
 
         if (what instanceof AEItemKey aeItemKey) {
-            drawItem(aeItemKey.getReadOnlyStack(), x, y);
+            drawItemIcon(aeItemKey.getReadOnlyStack(), x, y);
         } else if (what instanceof AEFluidKey aeFluidKey) {
-            drawFluid(aeFluidKey, x, y);
+            drawFluidIcon(aeFluidKey, x, y);
         }
     }
 
-    public static void renderIcon(AEItemKey key, int x, int y) {
-        if (key != null) {
-            drawItem(key.getReadOnlyStack(), x, y);
+    public static void renderItemAmount(long amount, boolean craftable, int x, int y, AmountFormat format) {
+        boolean hasAmount = amount > 0;
+        if (hasAmount) {
+            renderAmountText(AEKeyType.items(), amount, x, y, format);
         }
-    }
 
-    public static void renderIcon(AEFluidKey key, int x, int y) {
-        if (key != null) {
-            drawFluid(key, x, y);
+        if (craftable) {
+            renderCraftableIndicator(hasAmount, x, y);
         }
     }
 
@@ -130,11 +131,15 @@ public final class AEKeyRenderer {
         }
     }
 
-    public static void renderItemAmount(long amount, boolean craftable, int x, int y, AmountFormat format) {
-        if (amount > 0) {
-            renderAmountText(AEKeyType.items(), amount, x, y, format);
+    public static void renderFluidAmount(long amount, boolean craftable, int x, int y, AmountFormat format) {
+        boolean hasAmount = amount > 0;
+        if (hasAmount) {
+            renderAmountText(AEKeyType.fluids(), amount, x, y, format);
         }
-        renderCraftableIndicator(craftable, amount, x, y);
+
+        if (craftable) {
+            renderCraftableIndicator(hasAmount, x, y);
+        }
     }
 
     public static void renderFluidAmount(long amount, int x, int y, AmountFormat format) {
@@ -143,30 +148,18 @@ public final class AEKeyRenderer {
         }
     }
 
-    public static void renderFluidAmount(long amount, boolean craftable, int x, int y, AmountFormat format) {
-        if (amount > 0) {
-            renderAmountText(AEKeyType.fluids(), amount, x, y, format);
-        }
-        renderCraftableIndicator(craftable, amount, x, y);
-    }
-
-    private static void renderAmountText(AEKeyType keyType, long amount, int x, int y, AmountFormat format) {
+    private static void renderAmountText(AEKeyType type, long amount, int x, int y, AmountFormat format) {
         var fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        var text = keyType.formatAmount(amount, format);
-        renderText(fontRenderer, text, x, y, false);
+        var text = type.formatAmount(amount, format);
+        renderText(fontRenderer, text, x, y, false, 0.5f);
     }
 
-    private static void renderCraftableIndicator(boolean craftable, long amount, int x, int y) {
-        if (!craftable) {
-            return;
-        }
-
+    private static void renderCraftableIndicator(boolean topLeft, int x, int y) {
         var fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        boolean topLeft = amount != 0;
-        renderText(fontRenderer, "+", x, y, topLeft);
+        renderText(fontRenderer, "+", x, y, topLeft, 0.6f);
     }
 
-    private static void renderText(FontRenderer fontRenderer, String text, int x, int y, boolean topLeft) {
+    private static void renderText(FontRenderer fontRenderer, String text, int x, int y, boolean topLeft, float scale) {
         boolean unicodeFlag = fontRenderer.getUnicodeFlag();
         fontRenderer.setUnicodeFlag(false);
 
@@ -174,7 +167,6 @@ public final class AEKeyRenderer {
         GlStateManager.disableDepth();
         GlStateManager.disableBlend();
         GlStateManager.pushMatrix();
-        float scale = 0.5f;
         GlStateManager.scale(scale, scale, scale);
 
         float inverseScale = 1.0f / scale;
@@ -197,7 +189,7 @@ public final class AEKeyRenderer {
         fontRenderer.setUnicodeFlag(unicodeFlag);
     }
 
-    private static void drawItem(ItemStack stack, int x, int y) {
+    private static void drawItemIcon(ItemStack stack, int x, int y) {
         var mc = Minecraft.getMinecraft();
         GlStateManager.enableDepth();
         RenderHelper.enableGUIStandardItemLighting();
@@ -206,7 +198,7 @@ public final class AEKeyRenderer {
         GlStateManager.disableDepth();
     }
 
-    private static void drawFluid(AEFluidKey key, int x, int y) {
+    private static void drawFluidIcon(AEFluidKey key, int x, int y) {
         GlStateManager.disableLighting();
         var mc = Minecraft.getMinecraft();
         mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
