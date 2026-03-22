@@ -89,7 +89,7 @@ public final class AEItemKey extends AEKey {
 
     @Nullable
     public static AEItemKey of(ItemStack stack) {
-        if (stack.isEmpty()) {
+        if (stack == null || stack.isEmpty()) {
             return null;
         }
         var ret = of(stack.getItem(), stack.getMetadata(), stack.getTagCompound(), serializeStackCaps(stack));
@@ -122,10 +122,14 @@ public final class AEItemKey extends AEKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
+
         AEItemKey aeItemKey = (AEItemKey) o;
         return item == aeItemKey.item && metadata == aeItemKey.metadata && internedTag == aeItemKey.internedTag
                 && internedCaps == aeItemKey.internedCaps;
@@ -229,8 +233,8 @@ public final class AEItemKey extends AEKey {
         } else {
             result.setString("id", "minecraft:air");
         }
-        result.setInteger("metadata", metadata);
 
+        result.setInteger("metadata", metadata);
         if (internedTag.tag != null) {
             result.setTag("tag", internedTag.tag.copy());
         }
@@ -389,10 +393,14 @@ public final class AEItemKey extends AEKey {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+
+            if (o == null || getClass() != o.getClass()) {
                 return false;
+            }
+
             InternedTag internedTag = (InternedTag) o;
             return Objects.equals(tag, internedTag.tag);
         }

@@ -81,10 +81,14 @@ public final class AEFluidKey extends AEKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
+
         AEFluidKey aeFluidKey = (AEFluidKey) o;
         // The hash code comparison is a fast-fail for two objects with different NBT or fluid
         return hashCode == aeFluidKey.hashCode && fluid == aeFluidKey.fluid && Objects.equals(tag, aeFluidKey.tag);
