@@ -210,7 +210,7 @@ public final class AEItemKey extends AEKey {
         try {
             var item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(tag.getString("id")));
             if (item == null || item == Items.AIR) {
-                throw new IllegalArgumentException("Unknown item id.");
+                return null;
             }
 
             int metadata = tag.getInteger("metadata");
@@ -372,8 +372,7 @@ public final class AEItemKey extends AEKey {
     @Override
     public String toString() {
         var id = ForgeRegistries.ITEMS.getKey(item);
-        String idString = id != null ? id.toString()
-                : item.getClass().getName() + "(unregistered)";
+        String idString = id != null ? id.toString() : item.getClass().getName() + "(unregistered)";
         String metaString = idString + " metadata:" + metadata;
         return internedTag.tag == null ? metaString : metaString + " (+tag)";
     }

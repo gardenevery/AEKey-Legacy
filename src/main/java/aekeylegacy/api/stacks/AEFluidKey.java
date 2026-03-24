@@ -103,7 +103,7 @@ public final class AEFluidKey extends AEKey {
         try {
             var fluid = FluidRegistry.getFluid(tag.getString("id"));
             if (fluid == null) {
-                throw new IllegalArgumentException("Unknown fluid id");
+                return null;
             }
             var extraTag = tag.hasKey("tag") ? tag.getCompoundTag("tag") : null;
             return of(fluid, extraTag);

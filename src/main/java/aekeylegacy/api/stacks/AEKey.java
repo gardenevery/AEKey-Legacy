@@ -188,6 +188,11 @@ public abstract class AEKey {
             return false;
         }
 
+        // For item with variants, the metadata must match
+        if (this instanceof AEItemKey itemKey && itemKey.getHasSubtypes()) {
+            return itemKey.getMetadata() == ((AEItemKey) other).getMetadata();
+        }
+
         // If the type doesn't support fuzzy range search, it always behaves like IGNORE_ALL, which just ignores NBT
         if (!supportsFuzzyRangeSearch()) {
             return true;
