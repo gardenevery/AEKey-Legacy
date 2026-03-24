@@ -22,8 +22,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -35,185 +38,113 @@ import aekeylegacy.api.stacks.AmountFormat;
 
 @SideOnly(Side.CLIENT)
 public final class AEKeyRenderer {
+    private static final String CRAFTABLE_TEXT = "+";
+    private static final Minecraft MC = Minecraft.getMinecraft();
+    private static final Tessellator TESSELLATOR = Tessellator.getInstance();
+
     private AEKeyRenderer() {
     }
 
     public static void render(AEKey what, long amount, boolean craftable, int x, int y, AmountFormat format) {
-        if (what == null) {
-            return;
-        }
-
-        boolean hasAmount = amount > 0;
-
         if (what instanceof AEItemKey itemKey) {
             drawItemIcon(itemKey.getReadOnlyStack(), x, y);
-            if (hasAmount) {
-                renderAmountText(AEKeyType.items(), amount, x, y, format);
-            }
-
-            if (craftable) {
-                renderCraftableIndicator(hasAmount, x, y);
-            }
+            renderAmountAndCraftable(AEKeyType.items(), amount, craftable, x, y, format);
         } else if (what instanceof AEFluidKey fluidKey) {
-            drawFluidIcon(fluidKey, x, y);
-            if (hasAmount) {
-                renderAmountText(AEKeyType.fluids(), amount, x, y, format);
-            }
-
-            if (craftable) {
-                renderCraftableIndicator(hasAmount, x, y);
-            }
-        }
-    }
-
-    public static void render(AEKey what, long amount, int x, int y, AmountFormat format) {
-        if (what == null) {
-            return;
-        }
-
-        if (what instanceof AEItemKey itemKey) {
-            drawItemIcon(itemKey.getReadOnlyStack(), x, y);
-            if (amount > 0) {
-                renderAmountText(AEKeyType.items(), amount, x, y, format);
-            }
-        } else if (what instanceof AEFluidKey fluidKey) {
-            drawFluidIcon(fluidKey, x, y);
-            if (amount > 0) {
-                renderAmountText(AEKeyType.fluids(), amount, x, y, format);
-            }
-        }
-    }
-
-    public static void render(AEKey what, boolean craftable, int x, int y, AmountFormat format) {
-        if (what == null) {
-            return;
-        }
-
-        if (what instanceof AEItemKey itemKey) {
-            drawItemIcon(itemKey.getReadOnlyStack(), x, y);
-            if (craftable) {
-                renderCraftableIndicator(false, x, y);
-            }
-        } else if (what instanceof AEFluidKey fluidKey) {
-            drawFluidIcon(fluidKey, x, y);
-            if (craftable) {
-                renderCraftableIndicator(false, x, y);
-            }
+            drawFluidIcon(fluidKey.getFluid(), x, y);
+            renderAmountAndCraftable(AEKeyType.fluids(), amount, craftable, x, y, format);
         }
     }
 
     public static void renderIcon(AEKey what, int x, int y) {
-        if (what == null) {
-            return;
-        }
-
-        if (what instanceof AEItemKey aeItemKey) {
-            drawItemIcon(aeItemKey.getReadOnlyStack(), x, y);
-        } else if (what instanceof AEFluidKey aeFluidKey) {
-            drawFluidIcon(aeFluidKey, x, y);
+        if (what instanceof AEItemKey itemKey) {
+            drawItemIcon(itemKey.getReadOnlyStack(), x, y);
+        } else if (what instanceof AEFluidKey fluidKey) {
+            drawFluidIcon(fluidKey.getFluid(), x, y);
         }
     }
 
     public static void renderItemAmount(long amount, boolean craftable, int x, int y, AmountFormat format) {
-        boolean hasAmount = amount > 0;
-        if (hasAmount) {
-            renderAmountText(AEKeyType.items(), amount, x, y, format);
-        }
-
-        if (craftable) {
-            renderCraftableIndicator(hasAmount, x, y);
-        }
-    }
-
-    public static void renderItemAmount(long amount, int x, int y, AmountFormat format) {
-        if (amount > 0) {
-            renderAmountText(AEKeyType.items(), amount, x, y, format);
-        }
+        renderAmountAndCraftable(AEKeyType.items(), amount, craftable, x, y, format);
     }
 
     public static void renderFluidAmount(long amount, boolean craftable, int x, int y, AmountFormat format) {
-        boolean hasAmount = amount > 0;
-        if (hasAmount) {
-            renderAmountText(AEKeyType.fluids(), amount, x, y, format);
+        renderAmountAndCraftable(AEKeyType.fluids(), amount, craftable, x, y, format);
+    }
+
+    private static void renderAmountAndCraftable(AEKeyType type, long amount, boolean craftable, int x, int y, AmountFormat format) {
+        int state = ((amount > 0 ? 2 : 0) + (craftable ? 1 : 0));
+        if (state == 0) {
+            return;
         }
 
-        if (craftable) {
-            renderCraftableIndicator(hasAmount, x, y);
-        }
-    }
-
-    public static void renderFluidAmount(long amount, int x, int y, AmountFormat format) {
-        if (amount > 0) {
-            renderAmountText(AEKeyType.fluids(), amount, x, y, format);
-        }
-    }
-
-    private static void renderAmountText(AEKeyType type, long amount, int x, int y, AmountFormat format) {
-        var fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        var text = type.formatAmount(amount, format);
-        renderText(fontRenderer, text, x, y, false, 0.5f);
-    }
-
-    private static void renderCraftableIndicator(boolean topLeft, int x, int y) {
-        var fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        renderText(fontRenderer, "+", x, y, topLeft, 0.6f);
-    }
-
-    private static void renderText(FontRenderer fontRenderer, String text, int x, int y, boolean topLeft, float scale) {
+        var fontRenderer = MC.fontRenderer;
         boolean unicodeFlag = fontRenderer.getUnicodeFlag();
         fontRenderer.setUnicodeFlag(false);
 
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
         GlStateManager.disableBlend();
-        GlStateManager.pushMatrix();
-        GlStateManager.scale(scale, scale, scale);
 
-        float inverseScale = 1.0f / scale;
-        int renderX, renderY;
-        int offset = -1;
-
-        if (topLeft) {
-            renderX = (int) ((x + offset + 2) * inverseScale);
-            renderY = (int) ((y + offset + 2) * inverseScale);
-        } else {
-            renderX = (int) (((float) x + offset + 16.0f - fontRenderer.getStringWidth(text) * scale) * inverseScale);
-            renderY = (int) (((float) y + offset + 16.0f - 7.0f * scale) * inverseScale);
+        switch (state) {
+            case 3 -> {
+                drawTextOnly(fontRenderer, type.formatAmount(amount, format), x, y, 0.5f, false);
+                drawTextOnly(fontRenderer, CRAFTABLE_TEXT, x, y, 0.6f, true);
+            }
+            case 2 -> drawTextOnly(fontRenderer, type.formatAmount(amount, format), x, y, 0.5f, false);
+            case 1 -> drawTextOnly(fontRenderer, CRAFTABLE_TEXT, x, y, 0.6f, false);
         }
 
-        fontRenderer.drawStringWithShadow(text, renderX, renderY, 16777215);
-        GlStateManager.popMatrix();
         GlStateManager.enableLighting();
         GlStateManager.enableDepth();
         GlStateManager.enableBlend();
         fontRenderer.setUnicodeFlag(unicodeFlag);
     }
 
+    private static void drawTextOnly(FontRenderer fontRenderer, String text, int x, int y, float scale, boolean topLeft) {
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(scale, scale, scale);
+
+        float inverseScale = 1.0f / scale;
+        int renderX, renderY;
+
+        if (topLeft) {
+            renderX = (int) ((x + 1) * inverseScale);
+            renderY = (int) ((y + 1) * inverseScale);
+        } else {
+            renderX = (int) (((float) x + 15.0f - fontRenderer.getStringWidth(text) * scale) * inverseScale);
+            renderY = (int) (((float) y + 15.0f - 7.0f * scale) * inverseScale);
+        }
+
+        fontRenderer.drawStringWithShadow(text, renderX, renderY, 0xFFFFFF);
+        GlStateManager.popMatrix();
+    }
+
     private static void drawItemIcon(ItemStack stack, int x, int y) {
-        var mc = Minecraft.getMinecraft();
         GlStateManager.enableDepth();
         RenderHelper.enableGUIStandardItemLighting();
-        mc.getRenderItem().renderItemAndEffectIntoGUI(stack, x, y);
+        MC.getRenderItem().renderItemAndEffectIntoGUI(stack, x, y);
         RenderHelper.disableStandardItemLighting();
         GlStateManager.disableDepth();
     }
 
-    private static void drawFluidIcon(AEFluidKey key, int x, int y) {
+    private static void drawFluidIcon(Fluid fluid, int x, int y) {
         GlStateManager.disableLighting();
-        var mc = Minecraft.getMinecraft();
-        mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        var sprite = mc.getTextureMapBlocks().getAtlasSprite(key.getFluid().getStill().toString());
+        MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        var sprite = MC.getTextureMapBlocks().getAtlasSprite(fluid.getStill().toString());
 
-        int color = key.getFluid().getColor();
+        int color = fluid.getColor();
         float r = (color >> 16 & 0xFF) / 255.0f;
         float g = (color >> 8 & 0xFF) / 255.0f;
         float b = (color & 0xFF) / 255.0f;
         GlStateManager.color(r, g, b, 1.0f);
 
-        var gui = mc.currentScreen;
-        if (gui != null) {
-            gui.drawTexturedModalRect(x, y, sprite, 16, 16);
-        }
+        var buffer = TESSELLATOR.getBuffer();
+        buffer.begin(7, DefaultVertexFormats.POSITION_TEX);
+        buffer.pos(x, y + 16, 0).tex(sprite.getMinU(), sprite.getMaxV()).endVertex();
+        buffer.pos(x + 16, y + 16, 0).tex(sprite.getMaxU(), sprite.getMaxV()).endVertex();
+        buffer.pos(x + 16, y, 0).tex(sprite.getMaxU(), sprite.getMinV()).endVertex();
+        buffer.pos(x, y, 0).tex(sprite.getMinU(), sprite.getMinV()).endVertex();
+        TESSELLATOR.draw();
 
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         GlStateManager.enableLighting();
