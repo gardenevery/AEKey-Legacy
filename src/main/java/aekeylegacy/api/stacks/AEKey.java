@@ -188,7 +188,7 @@ public abstract class AEKey {
             return false;
         }
 
-        // For item with variants, the metadata must match
+        // For item with subtypes, the metadata must match
         if (this instanceof AEItemKey itemKey && itemKey.getHasSubtypes()) {
             return itemKey.getMetadata() == ((AEItemKey) other).getMetadata();
         }
