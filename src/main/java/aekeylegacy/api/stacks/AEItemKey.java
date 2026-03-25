@@ -365,7 +365,8 @@ public final class AEItemKey extends AEKey {
             var caps = data.readCompoundTag();
             return new AEItemKey(item, metadata, InternedTag.of(tag, true), InternedTag.of(caps, true));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            AELog.error("Tried to load an invalid item key from packet: %s", data, e);
+            return null;
         }
     }
 

@@ -108,7 +108,7 @@ public final class AEFluidKey extends AEKey {
             var extraTag = tag.hasKey("tag") ? tag.getCompoundTag("tag") : null;
             return of(fluid, extraTag);
         } catch (Exception e) {
-            AELog.debug("Tried to load an invalid fluid key from NBT: %s", tag, e);
+            AELog.error("Tried to load an invalid fluid key from NBT: %s", tag, e);
             return null;
         }
     }
