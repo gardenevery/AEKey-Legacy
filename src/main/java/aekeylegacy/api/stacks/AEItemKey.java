@@ -60,6 +60,12 @@ public final class AEItemKey extends AEKey {
         } catch (Throwable ex) {
             throw new RuntimeException("Failed to call serializeCaps", ex);
         }
+//        if (stack == null || stack.isEmpty()) {
+//            return null;
+//        }
+//
+//        var nbt = stack.serializeNBT();
+//        return nbt.hasKey("ForgeCaps", 10) ? nbt.getCompoundTag("ForgeCaps") : null;
     }
 
     private final Item item;
